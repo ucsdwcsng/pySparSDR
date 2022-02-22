@@ -9,22 +9,21 @@ import time
 
 # Parameters for the compressor
 nfft = 1024
-numWindPerBlock = 10
-signalIn = np.ones((nfft*numWindPerBlock,))
+numWindPerBlock = 100
 thresholdVec = 0.001*np.ones((1,nfft))
 
 # Create a compressor object and initialize it
 sparsdrObj = pySparSDRCompress(nfft, thresholdVec)
 
-numIter = 10000
+numIter = 1000
+signalIn = np.random.rand(nfft*numWindPerBlock,numIter)
 startTime = time.time()
 for i in range(numIter):
-    winIdx, binIdx, binVals = sparsdrObj.work(signalIn)
+    winIdx, binIdx, binVals = sparsdrObj.work(signalIn[:,1])
 endTime = time.time()
 print ("Time elapsed:", endTime - startTime)
 
-# print(sparsdrObj.numWinProcessed);
-megaSamplesPerSec = (signalIn.size * numIter)/(endTime - startTime)/np.power(10,6)
+megaSamplesPerSec = (signalIn.size)/(endTime - startTime)/np.power(10,6)
 print ("Throughput: ", megaSamplesPerSec, " MSps")
 
 
