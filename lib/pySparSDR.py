@@ -76,7 +76,7 @@ class pySparSDRCompress():
         output = output.transpose()
 
         # Threshold to find areas of activity
-        thresholdFlag = np.abs(output) > self.thresholdVec
+        thresholdFlag = output > self.thresholdVec
         thresholdFlag = np.transpose(thresholdFlag.nonzero())
 
         # Select only active bins
