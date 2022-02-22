@@ -58,24 +58,32 @@ class pySparSDRCompress():
         '''
         assert not xIn.size%self.nfft
 
+        # concatenate filter state
         xIn = np.concatenate((self.bufferState, xIn))
+        
+        # Half-Overlapped windowing
         evenWindows = self.windowVec*xIn[:-self.nover].reshape((self.nfft,-1))
         oddWindows = self.windowVec*xIn[self.nover:].reshape((self.nfft,-1)) 
 
+        # Fourier Transform
         evenWindows = np.fft.fft(evenWindows,axis=0)
         oddWindows = np.fft.fft(oddWindows,axis=0)
 
+        # Interleave overlapped windows
         output = np.empty((self.nfft, 2*evenWindows.shape[1]) , dtype=evenWindows.dtype)
         output[:,0::2] = evenWindows
         output[:,1::2] = oddWindows
         output = output.transpose()
 
+        # Threshold to find areas of activity
         thresholdFlag = output > self.thresholdVec
         thresholdFlag = np.transpose(thresholdFlag.nonzero())
 
+        # Select only active bins
         output = output[thresholdFlag[:,0],thresholdFlag[:,1]]
         thresholdFlag[:,0] = self.numWinProcessed + thresholdFlag[:,0]
 
+        # Update internal states
         self.bufferState = xIn[-self.nover:]
         self.numWinProcessed = self.numWinProcessed + 2*evenWindows.shape[1]
 
