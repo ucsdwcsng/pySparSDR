@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy import signal as sig
-from lib.pySparSDR import pySparSDRCompress
+from pysparsdr.pySparSDR import pySparSDRCompress
 
 import matplotlib.pyplot as plt
 import time
