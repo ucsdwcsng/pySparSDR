@@ -19,7 +19,7 @@ setup(
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: Apache License',  
+        'License :: OSI Approved :: Apache Software License',  
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
     ],
