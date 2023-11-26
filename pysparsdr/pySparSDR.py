@@ -3,6 +3,7 @@
 import numpy as np
 from scipy import signal as sig
 import pyfftw.interfaces.numpy_fft as fft
+from struct import pack
 
 
 class pySparSDRCompress:
@@ -11,7 +12,7 @@ class pySparSDRCompress:
     Khazraee, M., Guddeti, Y., Crow, S., Snoeren, A.C., Levchenko, K., Bharadia, D. and Schulman, A., 2019, June. Sparsdr: Sparsity-proportional backhaul and compute for sdrs. In Proceedings of the 17th Annual International Conference on Mobile Systems, Applications, and Services (pp. 391-403).
     """
 
-    def __init__(self, nfft=1024, thresholdVec=None):
+    def __init__(self,file_name ,max_fft_size=1024,nfft=1024, thresholdVec=None):
         """
         Initialize SparSDR Compressor
         :input: nfft :shouldBeEven: Number of bins in fft
@@ -30,6 +31,15 @@ class pySparSDRCompress:
         self.bufferState = np.zeros((self.nover,))
         self.numWinProcessed = 0
 
+        self.max_fft_size=max_fft_size  #the maximum fft_size the system support
+        # used to determine the encoded bits of fft
+        self.file_name=file_name #clean all contents in the file
+        file=open(self.file_name,'wb')
+        file.close()
+
+
+
+
     def reset(self):
         """
         Resets internal memory if the compressor needs to be re-started
@@ -37,6 +47,11 @@ class pySparSDRCompress:
         """
         self.bufferState = 0 * self.bufferState
         self.numWinProcessed = 0
+        ##clean file
+        file=open(self.file_name,'wb')
+        file.close()
+
+
 
     def setThreshold(self, thresholdVec):
         """
@@ -46,14 +61,30 @@ class pySparSDRCompress:
         assert thresholdVec.shape == (1, self.nfft)
         self.thresholdVec = thresholdVec
 
+
+    def encode(self,output, window,bins,bit_of_fft=11,is_ave=0):
+        data_number=len(output)
+        time_bits  = 32-1-bit_of_fft
+        file=open(self.file_name,'ab')#write without clean
+        for i in range(data_number):
+            value=output[i]
+            real_part=int(value.real)
+            imag_part=int(value.imag)
+            index_window=window[i]
+            index_bin=bins[i]
+            is_averagy=(is_ave<<31)
+            index_bin_b=index_bin*(2**time_bits)
+            hdr=is_averagy+index_bin_b+index_window
+            packed_data=pack('Ihh',int(hdr),imag_part,real_part)
+            file.write(packed_data)
+        file.close()
+        return None
+
     def work(self, xIn):
         """
         Perform compression on input vector
         :input: xIn :numElements==k*nfft: input signal as a numpy array
-        :output: (windowIdx, binIdx, binValue)
-        :output: windowIdx : Index of window over all-time
-        :output: binIdx : Index of bin in a particular window
-        :output: binValue : Value of the binIdx at the windowIdx
+        :output: the name of file that ccontains binary data
 
         This function remembers past input and stores overlap in the bufferState
         variable
@@ -91,4 +122,6 @@ class pySparSDRCompress:
         self.bufferState = xIn[-self.nover :]
         self.numWinProcessed = self.numWinProcessed + 2 * evenWindows.shape[1]
 
-        return thresholdFlag[:, 0], thresholdFlag[:, 1], output
+        self.encode(output,thresholdFlag[:, 0],thresholdFlag[:, 1],np.log2(self.max_fft_size))
+
+        return self.file_name
