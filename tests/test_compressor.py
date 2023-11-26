@@ -11,23 +11,25 @@ def test_compression():
 
     # Parameters for the compressor
     nfft = 1024
-    numWindPerBlock = 100
-    thresholdVec = 0.001 * np.ones((1, nfft))
+    #numWindPerBlock = 100
+    numWindPerBlock = 10
+    thresholdVec = 100 * np.ones((1, nfft))
 
     # Create a compressor object and initialize it
-    sparsdrObj = pySparSDRCompress(nfft, thresholdVec)
+    sparsdrObj = pySparSDRCompress('binary_data.bin',2048,nfft, thresholdVec)
 
-    numIter = 1000
+    #numIter = 1000
+    numIter=100
     signalIn = np.random.rand(nfft * numWindPerBlock, numIter)
     startTime = time.time()
     for i in range(numIter):
-        winIdx, binIdx, binVals = sparsdrObj.work(signalIn[:, 1])
+        file_name = sparsdrObj.work(signalIn[:, 0])
     endTime = time.time()
     print(f"Time elapsed: {endTime - startTime:.2f} s")
 
     megaSamplesPerSec = (signalIn.size) / (endTime - startTime) / np.power(10, 6)
     print(f"Throughput: {megaSamplesPerSec: .2f} MSps")
-
+    return file_name
 
 def test_compression_profile():
     print()
