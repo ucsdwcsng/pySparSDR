@@ -11,7 +11,7 @@ class pySparSDRCompress:
     Implementation of the SparSDR Compressor based on
     Khazraee, M., Guddeti, Y., Crow, S., Snoeren, A.C., Levchenko, K., Bharadia, D. and Schulman, A., 2019, June. Sparsdr: Sparsity-proportional backhaul and compute for sdrs. In Proceedings of the 17th Annual International Conference on Mobile Systems, Applications, and Services (pp. 391-403).
     """
-
+    #add self.file_name which is the file name          self.max_fft_size which is the maximum fft size the system support
     def __init__(self,file_name ,max_fft_size=1024,nfft=1024, thresholdVec=None):
         """
         Initialize SparSDR Compressor
