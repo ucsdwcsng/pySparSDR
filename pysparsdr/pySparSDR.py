@@ -34,8 +34,7 @@ class pySparSDRCompress:
         self.max_fft_size=max_fft_size  #the maximum fft_size the system support
         # used to determine the encoded bits of fft
         self.file_name=file_name #clean all contents in the file
-        file=open(self.file_name,'wb')
-        file.close()
+        self.file_handle=open(self.file_name,'ab')
 
 
 
@@ -48,9 +47,13 @@ class pySparSDRCompress:
         self.bufferState = 0 * self.bufferState
         self.numWinProcessed = 0
         ##clean file
-        file=open(self.file_name,'wb')
-        file.close()
 
+    def reset_file(self):
+        #clean the file and reopen it as 'ab'
+        self.file_handle.close()
+        self.file_handle=open(self.file_name,'wb')
+        self.file_handle.close()
+        self.file_handle=open(self.file_name,'ab')
 
 
     def setThreshold(self, thresholdVec):
@@ -65,7 +68,6 @@ class pySparSDRCompress:
     def encode(self,output, window,bins,bit_of_fft=11,is_ave=0):
         data_number=len(output)
         time_bits  = 32-1-bit_of_fft
-        file=open(self.file_name,'ab')#write without clean
         for i in range(data_number):
             value=output[i]
             real_part=int(value.real)
@@ -76,8 +78,7 @@ class pySparSDRCompress:
             index_bin_b=index_bin*(2**time_bits)
             hdr=is_averagy+index_bin_b+index_window
             packed_data=pack('Ihh',int(hdr),imag_part,real_part)
-            file.write(packed_data)
-        file.close()
+            self.file_handle.write(packed_data)
         return None
 
     def work(self, xIn):
