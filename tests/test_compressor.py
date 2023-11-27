@@ -24,13 +24,13 @@ def test_compression():
     signalIn = np.random.rand(nfft * numWindPerBlock, numIter)
     startTime = time.time()
     for i in range(numIter):
-        file_name = sparsdrObj.work(signalIn[:, 0])
+        sparsdrObj.work(signalIn[:, 0])
     endTime = time.time()
     print(f"Time elapsed: {endTime - startTime:.2f} s")
 
     megaSamplesPerSec = (signalIn.size) / (endTime - startTime) / np.power(10, 6)
     print(f"Throughput: {megaSamplesPerSec: .2f} MSps")
-    return file_name
+    return None
 
 def test_compression_profile():
     print()
