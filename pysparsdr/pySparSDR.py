@@ -4,7 +4,7 @@ import numpy as np
 from scipy import signal as sig
 import pyfftw.interfaces.numpy_fft as fft
 from struct import pack
-#pack can pack the data into binary
+
 
 class pySparSDRCompress:
     """
