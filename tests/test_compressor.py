@@ -17,6 +17,7 @@ def test_compression():
 
     # Create a compressor object and initialize it
     sparsdrObj = pySparSDRCompress('binary_data.bin',2048,nfft, thresholdVec)
+    #sparsdrObj.reset_file()
 
     #numIter = 1000
     numIter=100
